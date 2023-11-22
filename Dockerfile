@@ -1,9 +1,7 @@
-FROM rust:latest 
-RUN apt-get update && apt-get install -y libclang-dev libopencv-dev clang libssl-dev
+FROM ubuntu:jammy
+RUN apt-get update && apt-get upgrade -y 
 WORKDIR /server
-COPY ./src ./src
-COPY ./Cargo.toml  .
-RUN cargo build --release
-RUN mv /server/target/release/hqu_ual_interface_rs /hqu_ual_interface_rs
+COPY ./bin/hqu_ual_interface_rs .
+RUN mv /server/hqu_ual_interface_rs /hqu_ual_interface_rs
 ENV RUST_LOG=info
 CMD ["/hqu_ual_interface_rs"]
