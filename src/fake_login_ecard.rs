@@ -226,54 +226,54 @@ impl Req {
             return Err(anyhow!("get hallticket error"));
         }
 
-        // // gym
-        // let res: Response = self
-        //     .client
-        //     .post("https://ecard-sh.hqu.edu.cn/Page/Page")
-        //     .body("flowID=251&type=3&apptype=4&Url=https%253a%252f%252fecard-gymrsapp.hqu.edu.cn")
-        //     .header("Content-Type", "application/x-www-form-urlencoded")
-        //     .send()
-        //     .await?;
-        // let next = res.text().await?;
-        // if let None = next.split("window.location.href").last() {
-        //     return Err(anyhow!("get ticket error"));
-        // };
-        // let next = next.split("window.location.href").last().unwrap();
-        // let mut next = next.split("'");
-        // next.next();
-        // let final_url;
-        // if let Some(url) = next.next() {
-        //     final_url = url;
-        // } else {
-        //     return Err(anyhow!("get ticket error"));
-        // }
+        // gym
+        let res = self
+            .client
+            .post("https://ecard-sh.hqu.edu.cn/Page/Page")
+            .body("flowID=251&type=3&apptype=4&Url=https%253a%252f%252fecard-gymrsapp.hqu.edu.cn")
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .send()
+            .await?;
+        let next = res.text().await?;
+        if let None = next.split("window.location.href").last() {
+            return Err(anyhow!("get ticket error"));
+        };
+        let next = next.split("window.location.href").last().unwrap();
+        let mut next = next.split("'");
+        next.next();
+        let final_url;
+        if let Some(url) = next.next() {
+            final_url = url;
+        } else {
+            return Err(anyhow!("get ticket error"));
+        }
 
-        // //finally
-        // self.client.get(final_url).send().await?;
+        //finally
+        self.client.get(final_url).send().await?;
 
-        // //JSESSIONID
-        // if let Some(v) = self.cookie_jar.cookies(
-        //     &"http://ecard-gymrsapp.hqu.edu.cn/"
-        //         .parse::<reqwest::Url>()
-        //         .unwrap(),
-        // ) {
-        //     let kv = v.to_str()?;
-        //     for i in kv.split(';') {
-        //         let j = i.trim();
-        //         if j.starts_with("JSESSIONID=") {
-        //             let (_, v) = j.split_at(11);
-        //             json.insert(
-        //                 "JSESSIONID".to_string(),
-        //                 serde_json::Value::String(v.to_string()),
-        //             );
-        //         }
-        //     }
-        // }
+        //JSESSIONID
+        if let Some(v) = self.cookie_jar.cookies(
+            &"http://ecard-gymrsapp.hqu.edu.cn/"
+                .parse::<reqwest::Url>()
+                .unwrap(),
+        ) {
+            let kv = v.to_str()?;
+            for i in kv.split(';') {
+                let j = i.trim();
+                if j.starts_with("JSESSIONID=") {
+                    let (_, v) = j.split_at(11);
+                    json.insert(
+                        "JSESSIONID".to_string(),
+                        serde_json::Value::String(v.to_string()),
+                    );
+                }
+            }
+        }
 
-        // // failed
-        // if json.len() < 3 {
-        //     return Err(anyhow!("get JSESSIONID error"));
-        // }
+        // failed
+        if json.len() < 3 {
+            return Err(anyhow!("get JSESSIONID error"));
+        }
 
         Ok(serde_json::Value::Object(json))
     }
